@@ -15,7 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MySql.Data.MySqlClient;
-
+using System.Net.Mail;
+using System.Net;
 
 namespace NotiApp
 {
@@ -30,6 +31,7 @@ namespace NotiApp
 
         public MainWindow()
         {
+            makeEmail();
             DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
             builder.Add("Server", serverIp);
             builder.Add("Port", serverPort);
@@ -107,6 +109,34 @@ namespace NotiApp
                                 </body>
                             </html>";
             wb1.NavigateToString(strHTML);
+        }
+
+
+        private void makeEmail()
+        {
+            SmtpClient client = new SmtpClient("smtp.gmail.com",587);
+            client.EnableSsl = true;
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            client.Credentials = new NetworkCredential("His only gap close", "is walking towards you");
+            client.Timeout = 20000;
+            
+
+            MailMessage msg = new MailMessage("His only gap close", "menacingly");
+            msg.Subject = "test";
+            msg.Body = "Walks menacingly";
+            msg.IsBodyHtml = true;
+            try
+            {                
+                client.Send(msg);
+
+            }catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }finally
+            {
+                msg.Dispose();
+            }
+            
         }
     }
 }
