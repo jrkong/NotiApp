@@ -53,7 +53,8 @@ namespace NotiApp
             string uri = @"C:\Users\Alex Kong\Desktop\test.html";
 
             //wb1.Navigate(new Uri(uri, UriKind.Absolute));
-
+            List<string> strStatus = new List<string>();
+            List<string> strService = new List<string>();
             try
             {
                 string query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from server_programs.csv_service) t2 on t1.csv_timestmp = t2.recent;";
@@ -63,8 +64,7 @@ namespace NotiApp
 
                 dr.Read();
                 var test = dr;
-                List<string> strStatus = new List<string>();
-                List<string> strService = new List<string>();
+                
                 while (dr.Read())
                 {
                     strStatus.Add((string)dr[3]);
@@ -76,8 +76,8 @@ namespace NotiApp
             {
                 MessageBox.Show(ex.Message);
             }
-
-            string strHTML = @"<html><head><title>Report </title><meta charset='UTF-8'></head><style>p{font-family:Arial;}</style><body></br><p>TEST</p></br><p style='font-size:16;'><b>NOTIFICATION BOT</b></p></br><img src='http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg'><p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p></body></html>";
+            string strAdd = "<table style='width:100%><tr><th>Service</th><th>Status</th></tr><tr><th>"+strService[0]+ "</th><th>" + strStatus[0] + "</th></tr>";
+            string strHTML = @"<html><head><title>Report </title><meta charset='UTF-8'></head><style>p{font-family:Arial;}</style><body>" + strAdd + "</br><p>TEST</p></br><p style='font-size:16;'><b>NOTIFICATION BOT</b></p></br><img src='http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg'><p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p></body></html>";
             wb1.NavigateToString(strHTML);
         }
     }
