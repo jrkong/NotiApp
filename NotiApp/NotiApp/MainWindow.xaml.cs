@@ -93,6 +93,9 @@ namespace NotiApp
 
             //HTML BUILDING
             string strRows = "";
+            string strPost = "";
+
+            //add logic for strPost
             foreach(Tinfo table in tableInfo)
             {
                 string strBackgroundColour;
@@ -108,27 +111,33 @@ namespace NotiApp
                 }
                 strRows = strRows+@"
                             <tr>
-                            <th style='background-color:" + strBackgroundColour + "; color:"+ strFontColour +"'>"+ table.getService() + @"</th>
-                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
-                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getServer() + @"</th>
-                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
-                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
-                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:"+ strFontColour +"'>"+ table.getService() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getServer() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
                             </tr>
                             ";
             }
 
             string strTable = @"<table style='width:100%'>
+                                <tr><th>SERVERNAME</th></tr>
                                 <tr>
-                                    <th>Service</th>
-                                    <th>Subservice</th>
-                                    <th>Server</th>
-                                    <th>Status</th>
-                                    <th>Startup</th>
-                                    <th>Error</th>
-                                </tr>
-                                "+ strRows +@"
-                                
+                                    <table style='width:100%'>
+                                        
+                                    
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>Subservice</th>
+                                            <th>Server</th>
+                                            <th>Status</th>
+                                            <th>Startup</th>
+                                            <th>Error</th>
+                                        </tr>
+                                        " + strRows + @"
+                                        " + strPost + @"
+                                    </table>
                             </table>";
 
             string strHTML = @"<html>
