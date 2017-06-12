@@ -95,22 +95,25 @@ namespace NotiApp
             string strRows = "";
             foreach(Tinfo table in tableInfo)
             {
-                string strColour;
+                string strBackgroundColour;
+                string strFontColour;
                 if (table.getStatus()=="false")
                 {
-                    strColour = "red";
+                    strBackgroundColour = "red";
+                    strFontColour = "white";
                 }else
                 {
-                    strColour = "green";
+                    strBackgroundColour = "green";
+                    strFontColour = "black";
                 }
                 strRows = strRows+@"
                             <tr>
-                            <th style=background-color:" + strColour +">"+ table.getService() + @"</th>
-                            <th style=background-color:" + strColour + ">" + table.getSubservice() + @"</th>
-                            <th style=background-color:" + strColour + ">" + table.getServer() + @"</th>
-                            <th style=background-color:" + strColour + ">" + table.getStatus() + @"</th>
-                            <th style=background-color:" + strColour + ">" + table.getStartup() + @"</th>
-                            <th style=background-color:" + strColour + ">" + table.getError() + @"</th>
+                            <th style=background-color:" + strBackgroundColour + "; color:"+ strFontColour +">"+ table.getService() + @"</th>
+                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getSubservice() + @"</th>
+                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getServer() + @"</th>
+                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getStatus() + @"</th>
+                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getStartup() + @"</th>
+                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getError() + @"</th>
                             </tr>
                             ";
             }
