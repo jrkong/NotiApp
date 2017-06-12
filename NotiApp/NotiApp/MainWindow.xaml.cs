@@ -33,7 +33,7 @@ namespace NotiApp
 
         public MainWindow()
         {
-            makeEmail();
+            //makeEmail();
             DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
             builder.Add("Server", serverIp);
             builder.Add("Port", serverPort);
@@ -103,7 +103,7 @@ namespace NotiApp
                 {
                     strColour = "green";
                 }
-                strRows = @"
+                strRows = strRows+@"
                             <tr>
                             <th style=background-color:" + strColour +">"+ table.getService() + @"</th>
                             <th style=background-color:" + strColour + ">" + table.getSubservice() + @"</th>
