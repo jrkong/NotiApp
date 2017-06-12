@@ -77,7 +77,7 @@ namespace NotiApp
                 MessageBox.Show(ex.Message);
             }
 
-            string strHTML = @"<html>< head > < title > Report </ title >< meta charset = "UTF-8" ></ head >< style > p{ font - family: Arial; }</ style >< body > </ br >< p > TEST </ p ></ br >< p style = 'font-size:16; ' >< b > NOTIFICATION BOT </ b ></ p ></ br >< img src = 'http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg' >< p style = 'font-size:16; color:#66ccff' >< b >< i > Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p></ body ></ html > ";
+            string strHTML = @"<html>< head > < title > Report </ title >< meta charset = "UTF-8 ></ head >< style > p{ font - family: Arial; }</ style >< body > </ br >< p > TEST </ p ></ br >< p style = 'font-size:16; ' >< b > NOTIFICATION BOT </ b ></ p ></ br >< img src = 'http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg' >< p style = 'font-size:16; color:#66ccff' >< b >< i > Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p></ body ></ html > ";
             wb1.NavigateToString(strHTML);
         }
     }
