@@ -28,6 +28,8 @@ namespace NotiApp
         string serverIp = "192.168.7.24";
         string serverPort = "3306";
 
+        List<Tinfo> tableInfo = new List<Tinfo>();
+
         public MainWindow()
         {
             DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
@@ -53,8 +55,9 @@ namespace NotiApp
             string uri = @"C:\Users\Alex Kong\Desktop\test.html";
 
             //wb1.Navigate(new Uri(uri, UriKind.Absolute));
-            List<string> strStatus = new List<string>();
-            List<string> strService = new List<string>();
+            
+
+
             try
             {
                 string query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from server_programs.csv_service) t2 on t1.csv_timestmp = t2.recent;";
@@ -67,8 +70,17 @@ namespace NotiApp
                 
                 while (dr.Read())
                 {
-                    strStatus.Add((string)dr[3]);
-                    strService.Add((string)dr[4]);
+                    Tinfo tTemp = new Tinfo();
+
+                    tTemp.setService((string)dr[4]);
+                    tTemp.setSubservice((string)dr[5]);
+                    tTemp.setServer((string)dr[2]);
+                    tTemp.setStatus((string)dr[3]);
+                    DateTime dtStore = (DateTime)dr[1];
+                    tTemp.setStartup(dtStore.ToString());
+                    tTemp.setError((string)dr[6]);
+
+                    tableInfo.Add(tTemp);
                 }
 
                 dr.Close();
@@ -76,15 +88,42 @@ namespace NotiApp
             {
                 MessageBox.Show(ex.Message);
             }
-            string strAdd = @"<table style='width:100%'>
+
+            //HTML BUILDING
+            string strRows = "";
+            foreach(Tinfo table in tableInfo)
+            {
+                string strColour;
+                if (table.getStatus()=="false")
+                {
+                    strColour = "red";
+                }else
+                {
+                    strColour = "green";
+                }
+                strRows = @"
+                            <tr>
+                            <th style=background-color:" + strColour +">"+ table.getService() + @"</th>
+                            <th style=background-color:" + strColour + ">" + table.getSubservice() + @"</th>
+                            <th style=background-color:" + strColour + ">" + table.getServer() + @"</th>
+                            <th style=background-color:" + strColour + ">" + table.getStatus() + @"</th>
+                            <th style=background-color:" + strColour + ">" + table.getStartup() + @"</th>
+                            <th style=background-color:" + strColour + ">" + table.getError() + @"</th>
+                            </tr>
+                            ";
+            }
+
+            string strTable = @"<table style='width:100%'>
                                 <tr>
                                     <th>Service</th>
+                                    <th>Subservice</th>
+                                    <th>Server</th>
                                     <th>Status</th>
+                                    <th>Startup</th>
+                                    <th>Error</th>
                                 </tr>
-                                <tr>
-                                    <th>" + strService[0] + @"</th>
-                                    <th>" + strStatus[0] + @"</th>
-                                </tr>
+                                "+ strRows +@"
+                                
                             </table>";
 
             string strHTML = @"<html>
@@ -92,9 +131,17 @@ namespace NotiApp
                                     <title>Report </title>
                                     <meta charset='UTF-8'>
                                 </head>
-                                <style>p{font-family:Arial;}</style>
-                                <body>" 
-                                    + strAdd + 
+                                <style>
+                                    p{
+                                        font-family:Arial;
+                                    }
+                                    table, th, td {
+                                        border: 1px solid black;
+                                        border-collapse: collapse;
+                                    }
+                                </style>
+                                <body>"
+                                    + strTable + 
                                     @"</br>
                                     <p>TEST</p>
                                     </br>
@@ -107,6 +154,82 @@ namespace NotiApp
                                 </body>
                             </html>";
             wb1.NavigateToString(strHTML);
+        }
+    }
+
+    public class Tinfo
+    {
+        string strStatus;
+        string strService;
+        string strSubservice;
+        string strStartup;
+        string strError;
+        string strServer;
+
+        
+        public void setStatus(string strIn)
+        {
+            strStatus = strIn;
+        }
+
+        public string getStatus()
+        {
+            return strStatus;
+        }
+
+        //service getter setter set
+        public void setService(string strIn)
+        {
+            strService = strIn;
+        }
+
+        public string getService()
+        {
+            return strService;
+        }
+
+        //subservice getter setter set
+        public void setSubservice(string strIn)
+        {
+            strSubservice = strIn;
+        }
+
+        public string getSubservice()
+        {
+            return strSubservice;
+        }
+
+        //startup setter getter set
+        public void setStartup(string strIn)
+        {
+            strStartup = strIn;
+        }
+
+        public string getStartup()
+        {
+            return strStartup;
+        }
+
+        //error setter getter set
+        public void setError(string strIn)
+        {
+            strError = strIn;
+        }
+
+        public string getError()
+        {
+            return strError;
+        }
+
+        //error setter getter set
+        public void setServer(string strIn)
+        {
+            strServer = strIn;
+        }
+
+        public string getServer()
+        {
+            return strServer;
         }
     }
 }
