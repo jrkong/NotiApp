@@ -158,25 +158,27 @@ namespace NotiApp
                                     <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
                                 </body>
                             </html>";
+            makeEmail(strHTML);
             wb1.NavigateToString(strHTML);
         }
 
 
-        private void makeEmail()
+        private void makeEmail(string input)
         {
-            SmtpClient client = new SmtpClient("smtp.gmail.com",587);
-            client.EnableSsl = true;
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
-            client.Credentials = new NetworkCredential("His only gap close", "is walking towards you");
-            client.Timeout = 20000;
-            
 
-            MailMessage msg = new MailMessage("His only gap close", "menacingly");
+
+
+            MailMessage msg = new MailMessage("lchaos2@gmail.com", "rlam@websdepot.com");
             msg.Subject = "test";
-            msg.Body = "Walks menacingly";
+            msg.Body = input;
             msg.IsBodyHtml = true;
             try
-            {                
+            {
+                SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+                client.EnableSsl = true;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.Credentials = new NetworkCredential("lchaos2", "S4league!");
+                client.Timeout = 20000;
                 client.Send(msg);
 
             }catch(Exception ex)
