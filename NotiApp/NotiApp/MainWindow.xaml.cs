@@ -170,7 +170,7 @@ namespace NotiApp
 
 
 
-            MailMessage msg = new MailMessage("lchaos2@gmail.com", "rlam@websdepot.com");
+            MailMessage msg = new MailMessage("test@test.com", "test@test.com");
             msg.Subject = "test";
             msg.Body = input;
             msg.IsBodyHtml = true;
@@ -179,7 +179,7 @@ namespace NotiApp
                 SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
                 client.EnableSsl = true;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                client.Credentials = new NetworkCredential("lchaos2", "S4league!");
+                client.Credentials = new NetworkCredential("test", "test");
                 client.Timeout = 20000;
                 client.Send(msg);
 
