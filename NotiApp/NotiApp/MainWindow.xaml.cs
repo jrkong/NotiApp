@@ -108,12 +108,12 @@ namespace NotiApp
                 }
                 strRows = strRows+@"
                             <tr>
-                            <th style=background-color:" + strBackgroundColour + "; color:"+ strFontColour +">"+ table.getService() + @"</th>
-                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getSubservice() + @"</th>
-                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getServer() + @"</th>
-                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getStatus() + @"</th>
-                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getStartup() + @"</th>
-                            <th style=background-color:" + strBackgroundColour + "; color:" + strFontColour + ">" + table.getError() + @"</th>
+                            <th style='background-color:" + strBackgroundColour + "; color:"+ strFontColour +"'>"+ table.getService() + @"</th>
+                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
+                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getServer() + @"</th>
+                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
+                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
+                            <th style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
                             </tr>
                             ";
             }
@@ -141,14 +141,16 @@ namespace NotiApp
                                         font-family:Arial;
                                     }
                                     table, th, td {
+                                        font-family:Arial;
                                         border: 1px solid black;
                                         border-collapse: collapse;
                                     }
                                 </style>
-                                <body>"
+                                <body>
+                                    <p>Websdepot Server Report</p>"
                                     + strTable + 
                                     @"</br>
-                                    <p>TEST</p>
+                                    
                                     </br>
                                     <p style='font-size:16;'>
                                         <b>NOTIFICATION BOT</b>
