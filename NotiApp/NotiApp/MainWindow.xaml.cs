@@ -159,7 +159,7 @@ namespace NotiApp
                 strFc = "black";
             }
             string strTable = @"<table style='width:100%'>
-                                <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + tableInfo[0].getServer() + @"</th></tr>
+                                <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
                                 <tr></tr>
                                 <tr>
                                     <table style='width:100%'>
