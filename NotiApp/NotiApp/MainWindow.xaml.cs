@@ -212,8 +212,9 @@ namespace NotiApp
             return strRows;
         }
 
-        public string htmlBuilder(string strIn)
+        public string htmlBuilder(string strIn, Db dbIn)
         {
+
             string strTable = strIn;
             string strReturn =
                           @"<html>
@@ -232,7 +233,7 @@ namespace NotiApp
                                     }
                                 </style>
                                 <body>
-                                    <p>Websdepot Server Report</p>"
+                                    <p>"+ dbIn.getName() +@"</p>"
                                     + strTable +
                                     @"</br>
                                     
