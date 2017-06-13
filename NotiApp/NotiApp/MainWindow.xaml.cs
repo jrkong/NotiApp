@@ -88,8 +88,9 @@ namespace NotiApp
                 {
                     Server tempServ = new Server();
                     tempServ.setName((string)dr[0]);
-
+                    dB.addServer(tempServ);
                 }
+                
                 dr.Close();
 
                 List<Server> sTemp = dB.getServers();
@@ -102,7 +103,7 @@ namespace NotiApp
 
                     //dr.Read();
                     test = dr;
-
+                    List<Tinfo> tAdd = new List<Tinfo>();
                     while (dr.Read())
                     {
                         Tinfo tTemp = new Tinfo();
@@ -116,13 +117,14 @@ namespace NotiApp
                         tTemp.setError((string)dr[6]);
 
                         tableInfo.Add(tTemp);
-                        sServer.setTable(tTemp);
-
+                        
+                        tAdd.Add(tTemp);
                     }
+                    sServer.setTable(tAdd);
                     dr.Close();
                     intCounter++;
                 }
-                Db.setServers(sTemp);
+                dB.setServers(sTemp);
             }
             dr.Close();
             
@@ -354,7 +356,7 @@ namespace NotiApp
     public class Server
     {
         string strName;
-        Tinfo tTable;
+        List<Tinfo> tTable = new List<Tinfo>();
 
         public void setName(string strIn)
         {
@@ -366,12 +368,12 @@ namespace NotiApp
             return strName;
         }
 
-        public void setTable(Tinfo tIn)
+        public void setTable(List<Tinfo> tIn)
         {
             tTable = tIn;
         }
 
-        public Tinfo getTable()
+        public List<Tinfo> getTable()
         {
             return tTable;
         }
