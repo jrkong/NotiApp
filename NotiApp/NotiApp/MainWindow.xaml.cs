@@ -30,6 +30,7 @@ namespace NotiApp
         string serverPort = "3306";
 
         List<Tinfo> tableInfo = new List<Tinfo>();
+        List<Db> dbList = new List<Db>();
 
         public MainWindow()
         {
@@ -57,35 +58,56 @@ namespace NotiApp
             string uri = @"C:\Users\Alex Kong\Desktop\test.html";
 
             //wb1.Navigate(new Uri(uri, UriKind.Absolute));
-            
 
+            string query = "SHOW databases;";
+            MySqlCommand cmd = new MySqlCommand(query, connect);
 
-            try
+            MySqlDataReader dr = cmd.ExecuteReader();
+
+            dr.Read();
+            var test = dr;
+
+            int intCounter = 0;
+            while (dr.Read())
             {
-                string query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from server_programs.csv_service) t2 on t1.csv_timestmp = t2.recent;";
-                MySqlCommand cmd = new MySqlCommand(query, connect);
+                Db dbTemp = new Db();
+                dbTemp.setName((string)dr[intCounter]);
 
-                MySqlDataReader dr = cmd.ExecuteReader();
+                query = @"Select t1.* from "+ dbTemp.getName() + ".csv_service t1 inner join (select max(csv_timestmp) recent from " + dbTemp.getName() + ".csv_service) t2 on t1.csv_timestmp = t2.recent;";
+                MySqlCommand cmd2 = new MySqlCommand(query, connect);
 
-                dr.Read();
-                var test = dr;
-                
+                MySqlDataReader dr2 = cmd2.ExecuteReader();
+
+                dr2.Read();
+                test = dr2;
+
                 while (dr.Read())
                 {
                     Tinfo tTemp = new Tinfo();
 
-                    tTemp.setService((string)dr[4]);
-                    tTemp.setSubservice((string)dr[5]);
-                    tTemp.setServer((string)dr[2]);
-                    tTemp.setStatus((string)dr[3]);
-                    DateTime dtStore = (DateTime)dr[1];
+                    tTemp.setService((string)dr2[4]);
+                    tTemp.setSubservice((string)dr2[5]);
+                    tTemp.setServer((string)dr2[2]);
+                    tTemp.setStatus((string)dr2[3]);
+                    DateTime dtStore = (DateTime)dr2[1];
                     tTemp.setStartup(dtStore.ToString());
-                    tTemp.setError((string)dr[6]);
+                    tTemp.setError((string)dr2[6]);
 
                     tableInfo.Add(tTemp);
+                    
                 }
+                dr2.Close();
+                dbTemp.setTables(tableInfo);
+                dbList.Add(dbTemp);
+                intCounter++;
+            }
+            dr.Close();
 
-                dr.Close();
+                try
+            {
+                
+
+                
             }catch(Exception ex)
             {
                 MessageBox.Show(ex.Message);
@@ -94,6 +116,7 @@ namespace NotiApp
             //HTML BUILDING
             string strRows = "";
             string strPost = "";
+            bool blnCheck = true;
 
             //add logic for strPost
             foreach(Tinfo table in tableInfo)
@@ -113,16 +136,31 @@ namespace NotiApp
                             <tr>
                             <td style='background-color:" + strBackgroundColour + "; color:"+ strFontColour +"'>"+ table.getService() + @"</th>
                             <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getServer() + @"</th>
                             <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
                             <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
                             <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
                             </tr>
                             ";
+                if(table.getStatus() == "false")
+                {
+                    blnCheck = false;
+                }
             }
 
+            string strBg;
+            string strFc;
+            if (!blnCheck)
+            {
+                strBg = "red";
+                strFc = "white";
+            }else
+            {
+                strBg = "green";
+                strFc = "black";
+            }
             string strTable = @"<table style='width:100%'>
-                                <tr><th>SERVERNAME</th></tr>
+                                <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + tableInfo[0].getServer() + @"</th></tr>
+                                <tr></tr>
                                 <tr>
                                     <table style='width:100%'>
                                         
@@ -130,7 +168,6 @@ namespace NotiApp
                                         <tr>
                                             <th>Service</th>
                                             <th>Subservice</th>
-                                            <th>Server</th>
                                             <th>Status</th>
                                             <th>Startup</th>
                                             <th>Error</th>
@@ -212,7 +249,7 @@ namespace NotiApp
         string strError;
         string strServer;
 
-        
+        //status getter setter set
         public void setStatus(string strIn)
         {
             strStatus = strIn;
@@ -276,6 +313,32 @@ namespace NotiApp
         public string getServer()
         {
             return strServer;
+        }
+    }
+
+    public class Db
+    {
+        string strName;
+        List<Tinfo> tTables;
+
+        public void setName(string strIn)
+        {
+            strName = strIn;
+        }
+
+        public string getName()
+        {
+            return strName;
+        }
+
+        public void setTables(List<Tinfo> tIn)
+        {
+            tTables = tIn;
+        }
+
+        public List<Tinfo> getTables()
+        {
+            return tTables;
         }
     }
 }
