@@ -86,39 +86,46 @@ namespace NotiApp
                 dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
-                    databaseNameList.Add((string)dr[0]);
+                    Server tempServ = new Server();
+                    tempServ.setName((string)dr[0]);
+
                 }
                 dr.Close();
 
-
-                query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from "+ dB.getName() +".csv_service) t2 on t1.csv_timestmp = t2.recent;";
-                cmd = new MySqlCommand(query, connect);
-
-                dr = cmd.ExecuteReader();
-
-                //dr.Read();
-                test = dr;
-
-                while (dr.Read())
+                List<Server> sTemp = dB.getServers();
+                foreach (Server sServer in sTemp)
                 {
-                    Tinfo tTemp = new Tinfo();
+                    query = @"Select t1.* from " + dB.getName() + ".csv_service t1 inner join (select max(csv_timestmp) recent from " + dB.getName() + ".csv_service) t2 on t1.csv_timestmp = t2.recent where csv_server='" + sServer.getName() + "';";
+                    cmd = new MySqlCommand(query, connect);
 
-                    tTemp.setService((string)dr[4]);
-                    tTemp.setSubservice((string)dr[5]);
-                    tTemp.setServer((string)dr[2]);
-                    tTemp.setStatus((string)dr[3]);
-                    DateTime dtStore = (DateTime)dr[1];
-                    tTemp.setStartup(dtStore.ToString());
-                    tTemp.setError((string)dr[6]);
+                    dr = cmd.ExecuteReader();
 
-                    tableInfo.Add(tTemp);
-                    dB.setTable(tTemp);
-                    
+                    //dr.Read();
+                    test = dr;
+
+                    while (dr.Read())
+                    {
+                        Tinfo tTemp = new Tinfo();
+
+                        tTemp.setService((string)dr[4]);
+                        tTemp.setSubservice((string)dr[5]);
+                        tTemp.setServer((string)dr[2]);
+                        tTemp.setStatus((string)dr[3]);
+                        DateTime dtStore = (DateTime)dr[1];
+                        tTemp.setStartup(dtStore.ToString());
+                        tTemp.setError((string)dr[6]);
+
+                        tableInfo.Add(tTemp);
+                        sServer.setTable(tTemp);
+
+                    }
+                    dr.Close();
+                    intCounter++;
                 }
-                dr.Close();
-                intCounter++;
+                Db.setServers(sTemp);
             }
             dr.Close();
+            
 
             string strTable = "";
             string strHTML = "";
@@ -129,101 +136,7 @@ namespace NotiApp
             }
             strHTML = htmlBuilder(strTable);
 
-            /*
-            //HTML BUILDING
-            string strRows = "";
-            string strPost = "";
-            bool blnCheck = true;
-
-            //add logic for strPost
-            foreach(Tinfo table in tableInfo)
-            {
-                string strBackgroundColour;
-                string strFontColour;
-                if (table.getStatus()=="false")
-                {
-                    strBackgroundColour = "red";
-                    strFontColour = "white";
-                }else
-                {
-                    strBackgroundColour = "green";
-                    strFontColour = "black";
-                }
-                strRows = strRows+@"
-                            <tr>
-                            <td style='background-color:" + strBackgroundColour + "; color:"+ strFontColour +"'>"+ table.getService() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
-                            </tr>
-                            ";
-                if(table.getStatus() == "false")
-                {
-                    blnCheck = false;
-                }
-            }
-
-            string strBg;
-            string strFc;
-            if (!blnCheck)
-            {
-                strBg = "red";
-                strFc = "white";
-            }else
-            {
-                strBg = "green";
-                strFc = "black";
-            }
-            string strTable = @"<table style='width:100%'>
-                                <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
-                                <tr></tr>
-                                <tr>
-                                    <table style='width:100%'>
-                                        
-                                    
-                                        <tr>
-                                            <th>Service</th>
-                                            <th>Subservice</th>
-                                            <th>Status</th>
-                                            <th>Startup</th>
-                                            <th>Error</th>
-                                        </tr>
-                                        " + strRows + @"
-                                        " + strPost + @"
-                                    </table>
-                            </table>";
-
-            string strHTML = @"<html>
-                                <head>
-                                    <title>Report </title>
-                                    <meta charset='UTF-8'>
-                                </head>
-                                <style>
-                                    p{
-                                        font-family:Arial;
-                                    }
-                                    table, th, td {
-                                        font-family:Arial;
-                                        border: 1px solid black;
-                                        border-collapse: collapse;
-                                    }
-                                </style>
-                                <body>
-                                    <p>Websdepot Server Report</p>"
-                                    + strTable + 
-                                    @"</br>
-                                    
-                                    </br>
-                                    <p style='font-size:16;'>
-                                        <b>NOTIFICATION BOT</b>
-                                    </p>
-                                    </br>
-                                    <img src='http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg'>
-                                    <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
-                                </body>
-                            </html>";
-            */
+            
 
             //makeEmail(strHTML);
             wb1.NavigateToString(strHTML);
@@ -245,7 +158,7 @@ namespace NotiApp
                 strFc = "black";
             }
             string strReturn = @"<table style='width:100%'>
-                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + dIn.getTable().getServer() + @"</th></tr>
+                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
                                  <tr></tr>
                                  <tr>
                                      <table style='width:100%'>
@@ -358,7 +271,6 @@ namespace NotiApp
             {
                 msg.Dispose();
             }
-            
         }
     }
 
@@ -436,12 +348,38 @@ namespace NotiApp
         {
             return strServer;
         }
+
     }
 
-    public class Db
+    public class Server
     {
         string strName;
         Tinfo tTable;
+
+        public void setName(string strIn)
+        {
+            strName = strIn;
+        }
+
+        public string getName()
+        {
+            return strName;
+        }
+
+        public void setTable(Tinfo tIn)
+        {
+            tTable = tIn;
+        }
+
+        public Tinfo getTable()
+        {
+            return tTable;
+        }
+    }
+    public class Db
+    {
+        string strName;
+        List<Server> sServe = new List<Server>();
 
         bool blnHealth = true;
 
@@ -465,14 +403,115 @@ namespace NotiApp
             return strName;
         }
 
-        public void setTable(Tinfo tIn)
+        public void addServer(Server sIn)
         {
-            tTable = tIn;
+            sServe.Add(sIn);
         }
 
-        public Tinfo getTable()
+        public List<Server> getServers()
         {
-            return tTable;
+            return sServe;
+        }
+
+        public void setServers(List<Server> sIn)
+        {
+            sServe = sIn;
         }
     }
 }
+/*
+            //HTML BUILDING
+            //after line 134
+            string strRows = "";
+            string strPost = "";
+            bool blnCheck = true;
+
+            //add logic for strPost
+            foreach(Tinfo table in tableInfo)
+            {
+                string strBackgroundColour;
+                string strFontColour;
+                if (table.getStatus()=="false")
+                {
+                    strBackgroundColour = "red";
+                    strFontColour = "white";
+                }else
+                {
+                    strBackgroundColour = "green";
+                    strFontColour = "black";
+                }
+                strRows = strRows+@"
+                            <tr>
+                            <td style='background-color:" + strBackgroundColour + "; color:"+ strFontColour +"'>"+ table.getService() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
+                            </tr>
+                            ";
+                if(table.getStatus() == "false")
+                {
+                    blnCheck = false;
+                }
+            }
+
+            string strBg;
+            string strFc;
+            if (!blnCheck)
+            {
+                strBg = "red";
+                strFc = "white";
+            }else
+            {
+                strBg = "green";
+                strFc = "black";
+            }
+            string strTable = @"<table style='width:100%'>
+                                <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
+                                <tr></tr>
+                                <tr>
+                                    <table style='width:100%'>
+                                        
+                                    
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>Subservice</th>
+                                            <th>Status</th>
+                                            <th>Startup</th>
+                                            <th>Error</th>
+                                        </tr>
+                                        " + strRows + @"
+                                        " + strPost + @"
+                                    </table>
+                            </table>";
+
+            string strHTML = @"<html>
+                                <head>
+                                    <title>Report </title>
+                                    <meta charset='UTF-8'>
+                                </head>
+                                <style>
+                                    p{
+                                        font-family:Arial;
+                                    }
+                                    table, th, td {
+                                        font-family:Arial;
+                                        border: 1px solid black;
+                                        border-collapse: collapse;
+                                    }
+                                </style>
+                                <body>
+                                    <p>Websdepot Server Report</p>"
+                                    + strTable + 
+                                    @"</br>
+                                    
+                                    </br>
+                                    <p style='font-size:16;'>
+                                        <b>NOTIFICATION BOT</b>
+                                    </p>
+                                    </br>
+                                    <img src='http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg'>
+                                    <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
+                                </body>
+                            </html>";
+            */
