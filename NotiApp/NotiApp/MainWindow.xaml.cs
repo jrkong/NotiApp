@@ -59,7 +59,7 @@ namespace NotiApp
 
             //wb1.Navigate(new Uri(uri, UriKind.Absolute));
 
-            string query = "SHOW databases;";
+            string query = "SELECT table_schema `Database` FROM INFORMATION_SCHEMA.TABLES WHERE table_name='csv_service';";
             MySqlCommand cmd = new MySqlCommand(query, connect);
 
             MySqlDataReader dr = cmd.ExecuteReader();
@@ -73,10 +73,10 @@ namespace NotiApp
                 Db dbTemp = new Db();
                 dbTemp.setName((string)dr[intCounter]);
 
-                query = @"Select t1.* from "+ dbTemp.getName() + ".csv_service t1 inner join (select max(csv_timestmp) recent from " + dbTemp.getName() + ".csv_service) t2 on t1.csv_timestmp = t2.recent;";
-                MySqlCommand cmd2 = new MySqlCommand(query, connect);
+                query = @"Select t1.* from "+ dbTemp.getName() +".csv_service t1 inner join (select max(csv_timestmp) recent from "+ dbTemp.getName() +".csv_service) t2 on t1.csv_timestmp = t2.recent;";
+                cmd = new MySqlCommand(query, connect);
 
-                MySqlDataReader dr2 = cmd2.ExecuteReader();
+                MySqlDataReader dr2 = cmd.ExecuteReader();
 
                 dr2.Read();
                 test = dr2;
