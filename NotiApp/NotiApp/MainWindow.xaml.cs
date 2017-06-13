@@ -61,42 +61,48 @@ namespace NotiApp
 
             string query = "SELECT table_schema `Database` FROM INFORMATION_SCHEMA.TABLES WHERE table_name='csv_service';";
             MySqlCommand cmd = new MySqlCommand(query, connect);
-
             MySqlDataReader dr = cmd.ExecuteReader();
 
-            dr.Read();
+            List<string> dbNameList = new List<string>();
+
+            while (dr.Read())
+            {
+                dbNameList.Add((string)dr[0]);
+            }
             var test = dr;
 
             int intCounter = 0;
-            while (dr.Read())
+            dr.Close();
+
+            foreach(string dbName in dbNameList)
             {
                 Db dbTemp = new Db();
-                dbTemp.setName((string)dr[intCounter]);
+                dbTemp.setName(dbName);
 
                 query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from "+ dbTemp.getName() +".csv_service) t2 on t1.csv_timestmp = t2.recent;";
                 cmd = new MySqlCommand(query, connect);
 
-                MySqlDataReader dr2 = cmd.ExecuteReader();
+                dr = cmd.ExecuteReader();
 
-                dr2.Read();
-                test = dr2;
+                dr.Read();
+                test = dr;
 
                 while (dr.Read())
                 {
                     Tinfo tTemp = new Tinfo();
 
-                    tTemp.setService((string)dr2[4]);
-                    tTemp.setSubservice((string)dr2[5]);
-                    tTemp.setServer((string)dr2[2]);
-                    tTemp.setStatus((string)dr2[3]);
-                    DateTime dtStore = (DateTime)dr2[1];
+                    tTemp.setService((string)dr[4]);
+                    tTemp.setSubservice((string)dr[5]);
+                    tTemp.setServer((string)dr[2]);
+                    tTemp.setStatus((string)dr[3]);
+                    DateTime dtStore = (DateTime)dr[1];
                     tTemp.setStartup(dtStore.ToString());
-                    tTemp.setError((string)dr2[6]);
+                    tTemp.setError((string)dr[6]);
 
                     tableInfo.Add(tTemp);
                     
                 }
-                dr2.Close();
+                dr.Close();
                 dbTemp.setTables(tableInfo);
                 dbList.Add(dbTemp);
                 intCounter++;
