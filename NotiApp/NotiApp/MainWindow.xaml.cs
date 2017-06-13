@@ -67,19 +67,18 @@ namespace NotiApp
 
             while (dr.Read())
             {
-                dbNameList.Add((string)dr[0]);
+                Db dbTemp = new Db();
+                dbTemp.setName((string)dr[0]);
+                dbList.Add(dbTemp);
             }
             var test = dr;
 
             int intCounter = 0;
             dr.Close();
 
-            foreach(string dbName in dbNameList)
+            foreach(Db dB in dbList)
             {
-                Db dbTemp = new Db();
-                dbTemp.setName(dbName);
-
-                query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from "+ dbTemp.getName() +".csv_service) t2 on t1.csv_timestmp = t2.recent;";
+                query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from "+ dB.getName() +".csv_service) t2 on t1.csv_timestmp = t2.recent;";
                 cmd = new MySqlCommand(query, connect);
 
                 dr = cmd.ExecuteReader();
@@ -100,25 +99,23 @@ namespace NotiApp
                     tTemp.setError((string)dr[6]);
 
                     tableInfo.Add(tTemp);
+                    dB.setTable(tTemp);
                     
                 }
                 dr.Close();
-                dbTemp.setTables(tableInfo);
-                dbList.Add(dbTemp);
                 intCounter++;
             }
             dr.Close();
 
-                try
-            {
-                
+            string strHTML = "";
 
-                
-            }catch(Exception ex)
+            foreach (Db dLoop in dbList)
             {
-                MessageBox.Show(ex.Message);
+                strHTML = strHTML + tableBuilder(dLoop);
             }
 
+
+            /*
             //HTML BUILDING
             string strRows = "";
             string strPost = "";
@@ -212,10 +209,115 @@ namespace NotiApp
                                     <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
                                 </body>
                             </html>";
-            makeEmail(strHTML);
+            */
+
+            //makeEmail(strHTML);
             wb1.NavigateToString(strHTML);
         }
+        public string tableBuilder(Db dIn)
+        {
+            string strRows = rowBulider(dIn);
 
+            string strBg;
+            string strFc;
+            if (!dIn.getHealth())
+            {
+                strBg = "red";
+                strFc = "white";
+            }
+            else
+            {
+                strBg = "green";
+                strFc = "black";
+            }
+            string strReturn = @"<table style='width:100%'>
+                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
+                                 <tr></tr>
+                                 <tr>
+                                     <table style='width:100%'>
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>Subservice</th>
+                                            <th>Status</th>
+                                            <th>Startup</th>
+                                            <th>Error</th>
+                                        </tr>
+                                        " + strRows + @"
+                                    </table>
+                            </table>";
+            return "";
+        }
+        
+        public string rowBulider(Db dIn)
+        {
+            string strRows = "";
+            //add logic for strPost
+            foreach (Tinfo table in tableInfo)
+            {
+                string strBackgroundColour;
+                string strFontColour;
+                if (table.getStatus() == "false")
+                {
+                    strBackgroundColour = "red";
+                    strFontColour = "white";
+                }
+                else
+                {
+                    strBackgroundColour = "green";
+                    strFontColour = "black";
+                }
+                strRows = strRows + @"
+                            <tr>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getService() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
+                            </tr>
+                            ";
+                if (table.getStatus() == "false")
+                {
+                    dIn.setHealth(false);
+                }
+            }
+            return strRows;
+        }
+
+        public string htmlBuilder(Db dIn)
+        {
+            string strTable = tableBuilder(dIn);
+            string strReturn =
+                          @"<html>
+                                <head>
+                                    <title>Report </title>
+                                    <meta charset='UTF-8'>
+                                </head>
+                                <style>
+                                    p{
+                                        font-family:Arial;
+                                    }
+                                    table, th, td {
+                                        font-family:Arial;
+                                        border: 1px solid black;
+                                        border-collapse: collapse;
+                                    }
+                                </style>
+                                <body>
+                                    <p>Websdepot Server Report</p>"
+                                    + strTable +
+                                    @"</br>
+                                    
+                                    </br>
+                                    <p style='font-size:16;'>
+                                        <b>NOTIFICATION BOT</b>
+                                    </p>
+                                    </br>
+                                    <img src='http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg'>
+                                    <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
+                                </body>
+                            </html>";
+            return "";
+        }
 
         private void makeEmail(string input)
         {
@@ -325,7 +427,19 @@ namespace NotiApp
     public class Db
     {
         string strName;
-        List<Tinfo> tTables;
+        Tinfo tTable;
+
+        bool blnHealth = true;
+
+        public void setHealth(bool blnIn)
+        {
+            blnHealth = blnIn;
+        }
+
+        public bool getHealth()
+        {
+            return blnHealth;
+        }
 
         public void setName(string strIn)
         {
@@ -337,14 +451,14 @@ namespace NotiApp
             return strName;
         }
 
-        public void setTables(List<Tinfo> tIn)
+        public void setTable(Tinfo tIn)
         {
-            tTables = tIn;
+            tTable = tIn;
         }
 
-        public List<Tinfo> getTables()
+        public Tinfo getTable()
         {
-            return tTables;
+            return tTable;
         }
     }
 }
