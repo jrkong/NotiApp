@@ -32,6 +32,8 @@ namespace NotiApp
         List<Tinfo> tableInfo = new List<Tinfo>();
         List<Db> dbList = new List<Db>();
 
+        List<string> databaseNameList = new List<string>();
+
         public MainWindow()
         {
             //makeEmail();
@@ -78,12 +80,23 @@ namespace NotiApp
 
             foreach(Db dB in dbList)
             {
+
+                query = @"SELECT csv_server from "+dB.getName()+".csv_service group by csv_server;";
+                cmd = new MySqlCommand(query, connect);
+                dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    databaseNameList.Add((string)dr[0]);
+                }
+                dr.Close();
+
+
                 query = @"Select t1.* from server_programs.csv_service t1 inner join (select max(csv_timestmp) recent from "+ dB.getName() +".csv_service) t2 on t1.csv_timestmp = t2.recent;";
                 cmd = new MySqlCommand(query, connect);
 
                 dr = cmd.ExecuteReader();
 
-                dr.Read();
+                //dr.Read();
                 test = dr;
 
                 while (dr.Read())
