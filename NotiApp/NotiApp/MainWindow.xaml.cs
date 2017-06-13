@@ -107,13 +107,14 @@ namespace NotiApp
             }
             dr.Close();
 
+            string strTable = "";
             string strHTML = "";
 
             foreach (Db dLoop in dbList)
             {
-                strHTML = strHTML + tableBuilder(dLoop);
+                strTable = strTable + tableBuilder(dLoop);
             }
-
+            strHTML = htmlBuilder(strTable);
 
             /*
             //HTML BUILDING
@@ -216,7 +217,7 @@ namespace NotiApp
         }
         public string tableBuilder(Db dIn)
         {
-            string strRows = rowBulider(dIn);
+            string strRows = rowBuilder(dIn);
 
             string strBg;
             string strFc;
@@ -231,7 +232,7 @@ namespace NotiApp
                 strFc = "black";
             }
             string strReturn = @"<table style='width:100%'>
-                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
+                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + dIn.getTable().getServer() + @"</th></tr>
                                  <tr></tr>
                                  <tr>
                                      <table style='width:100%'>
@@ -245,10 +246,10 @@ namespace NotiApp
                                         " + strRows + @"
                                     </table>
                             </table>";
-            return "";
+            return strReturn;
         }
         
-        public string rowBulider(Db dIn)
+        public string rowBuilder(Db dIn)
         {
             string strRows = "";
             //add logic for strPost
@@ -283,9 +284,9 @@ namespace NotiApp
             return strRows;
         }
 
-        public string htmlBuilder(Db dIn)
+        public string htmlBuilder(string strIn)
         {
-            string strTable = tableBuilder(dIn);
+            string strTable = strIn;
             string strReturn =
                           @"<html>
                                 <head>
@@ -316,7 +317,7 @@ namespace NotiApp
                                     <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
                                 </body>
                             </html>";
-            return "";
+            return strReturn;
         }
 
         private void makeEmail(string input)
