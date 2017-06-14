@@ -295,17 +295,17 @@ namespace NotiApp
             try
             {
                 SmtpClient client = new SmtpClient(host, 25);
-                client.EnableSsl = true;
+                client.EnableSsl = false;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 //client.Credentials = new NetworkCredential("test", "test");
                 client.Timeout = 20000;
 
-
+                /*
                 ServicePointManager.ServerCertificateValidationCallback =
                 delegate (object s, X509Certificate certificate,
                  X509Chain chain, SslPolicyErrors sslPolicyErrors)
                 { return true; };
-
+                */
                 client.Send(msg);
 
             }catch(Exception ex)
