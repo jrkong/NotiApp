@@ -136,6 +136,7 @@ namespace NotiApp
             {
                 strTable = strTable + headerBuilder(dLoop);
             }
+            //TODO: PUSH ME TO SQL (this is the completed email HTML)
             strHTML = htmlBuilder(strTable);
 
             
@@ -274,6 +275,7 @@ namespace NotiApp
                                     </br>
                                     <img src='http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg'>
                                     <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
+
                                 </body>
                             </html>";
             return strReturn;
