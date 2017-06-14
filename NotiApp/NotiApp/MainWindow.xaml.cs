@@ -134,7 +134,7 @@ namespace NotiApp
 
             foreach (Db dLoop in dbList)
             {
-                strTable = strTable + tableBuilder(dLoop);
+                strTable = strTable + headerBuilder(dLoop);
             }
             strHTML = htmlBuilder(strTable);
 
@@ -143,13 +143,41 @@ namespace NotiApp
             //makeEmail(strHTML);
             wb1.NavigateToString(strHTML);
         }
-        public string tableBuilder(Db dIn)
-        {
-            string strRows = rowBuilder(dIn);
 
-            string strBg;
-            string strFc;
-            if (!dIn.getHealth())
+        //build html string for the body
+        public string headerBuilder(Db dIn)
+        {
+            string strDbName = "";
+            string strReturn = "";
+            List<Server> sList = new List<Server>();
+            sList = dIn.getServers();
+
+            //initiate building process...
+            //loading database name
+            strDbName = @"<h2> " + dIn.getName() + @" </h2>";
+            strReturn = strDbName;
+
+            //go through each server and generate a table for them
+            //uses the "Server" tag from the CSV
+            foreach (Server sServer in sList)
+            {
+                strReturn = strReturn + tableBuilder(sServer);
+            }
+            return strReturn;
+        }
+
+        public string tableBuilder(Server sIn)
+        {
+            string strRows = "";
+            List<Tinfo> tTemp = sIn.getTables();
+            strRows = rowBuilder(tTemp);
+
+
+            string strBg = "red";
+            string strFc = "white";
+
+            
+            if (!sIn.getHealth())
             {
                 strBg = "red";
                 strFc = "white";
@@ -159,8 +187,9 @@ namespace NotiApp
                 strBg = "green";
                 strFc = "black";
             }
+            
             string strReturn = @"<table style='width:100%'>
-                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
+                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + sIn.getName() + @"</th></tr>
                                  <tr></tr>
                                  <tr>
                                      <table style='width:100%'>
@@ -173,15 +202,16 @@ namespace NotiApp
                                         </tr>
                                         " + strRows + @"
                                     </table>
-                            </table>";
+                            </table>
+                            </br>";
             return strReturn;
         }
         
-        public string rowBuilder(Db dIn)
+        public string rowBuilder(List<Tinfo> tIn)
         {
             string strRows = "";
             //add logic for strPost
-            foreach (Tinfo table in tableInfo)
+            foreach (Tinfo table in tIn)
             {
                 string strBackgroundColour;
                 string strFontColour;
@@ -206,16 +236,16 @@ namespace NotiApp
                             ";
                 if (table.getStatus() == "false")
                 {
-                    dIn.setHealth(false);
+                    //dIn.setHealth(false);
                 }
             }
             return strRows;
         }
 
-        public string htmlBuilder(string strIn, Db dbIn)
+        public string htmlBuilder(string strIn)
         {
 
-            string strTable = strIn;
+            string strDatabase = strIn;
             string strReturn =
                           @"<html>
                                 <head>
@@ -233,8 +263,8 @@ namespace NotiApp
                                     }
                                 </style>
                                 <body>
-                                    <p>"+ dbIn.getName() +@"</p>"
-                                    + strTable +
+                                    <h1> TESTING HEADER</h1>"
+                                    + strDatabase +
                                     @"</br>
                                     
                                     </br>
@@ -358,6 +388,19 @@ namespace NotiApp
     {
         string strName;
         List<Tinfo> tTable = new List<Tinfo>();
+        bool blnHealth = true;
+
+        public bool getHealth()
+        {
+            foreach (Tinfo tEntry in tTable)
+            {
+                if (tEntry.getStatus() == "false")
+                {
+                    blnHealth = false;
+                }
+            }
+            return blnHealth;
+        }
 
         public void setName(string strIn)
         {
@@ -374,7 +417,7 @@ namespace NotiApp
             tTable = tIn;
         }
 
-        public List<Tinfo> getTable()
+        public List<Tinfo> getTables()
         {
             return tTable;
         }
@@ -384,17 +427,6 @@ namespace NotiApp
         string strName;
         List<Server> sServe = new List<Server>();
 
-        bool blnHealth = true;
-
-        public void setHealth(bool blnIn)
-        {
-            blnHealth = blnIn;
-        }
-
-        public bool getHealth()
-        {
-            return blnHealth;
-        }
 
         public void setName(string strIn)
         {
