@@ -17,6 +17,8 @@ using System.Windows.Shapes;
 using MySql.Data.MySqlClient;
 using System.Net.Mail;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace NotiApp
 {
@@ -141,7 +143,7 @@ namespace NotiApp
 
             
 
-            //makeEmail(strHTML);
+            makeEmail(strHTML,"email.websdepot.com","alert@websdepot.com","rlam@websdepot.com","test");
             wb1.NavigateToString(strHTML);
         }
 
@@ -281,22 +283,29 @@ namespace NotiApp
             return strReturn;
         }
 
-        private void makeEmail(string input)
+        private void makeEmail(string input, string host, string from, string to, string subject)
         {
 
 
 
-            MailMessage msg = new MailMessage("test@test.com", "test@test.com");
-            msg.Subject = "test";
+            MailMessage msg = new MailMessage(from, to);
+            msg.Subject = subject;
             msg.Body = input;
             msg.IsBodyHtml = true;
             try
             {
-                SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+                SmtpClient client = new SmtpClient(host, 25);
                 client.EnableSsl = true;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                client.Credentials = new NetworkCredential("test", "test");
+                //client.Credentials = new NetworkCredential("test", "test");
                 client.Timeout = 20000;
+
+
+                ServicePointManager.ServerCertificateValidationCallback =
+                delegate (object s, X509Certificate certificate,
+                 X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                { return true; };
+
                 client.Send(msg);
 
             }catch(Exception ex)
