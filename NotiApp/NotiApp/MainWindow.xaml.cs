@@ -190,7 +190,7 @@ namespace NotiApp
             }
             
             string strReturn = @"<table style='width:100%'>
-                                 <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + sIn.getName() + @"</th></tr>
+                                 <tr><th style='font-size: 20px; background-color:" + strBg + "; color:" + strFc + "'>" + sIn.getName() + @"</th></tr>
                                  <tr></tr>
                                  <tr>
                                      <table style='width:100%'>
@@ -204,7 +204,7 @@ namespace NotiApp
                                         " + strRows + @"
                                     </table>
                             </table>
-                            </br>";
+                            </br></br></br>";
             return strReturn;
         }
         
