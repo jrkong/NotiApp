@@ -140,8 +140,21 @@ namespace NotiApp
             string strHTML = "";
 
             //TODO: add foreach for each database here
+            foreach (Db dB in dbList)
+            {
+                query = @"SELECT csv_server from " + dB.getName() + ".csv_service group by csv_server;";
+                cmd = new MySqlCommand(query, connect);
+                dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    Server tempServ = new Server();
+                    tempServ.setName((string)dr[0]);
+                    dB.addServer(tempServ);
+                }
+            }
+            dr.Close();
 
-            foreach (Db dLoop in dbList)
+                foreach (Db dLoop in dbList)
             {
                 strTable = strTable + headerBuilder(dLoop);
             }
