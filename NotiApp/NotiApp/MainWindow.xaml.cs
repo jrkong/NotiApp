@@ -305,7 +305,7 @@ namespace NotiApp
         }
 
         //build list of upcoming server reboots
-        public string serverBuilder(Db dbIn, TimeSpan tIn)
+        public string serverBuilder(Db dbIn, int intHours)
         {
 
             string strTimespan = "PLACEHOLDER TIME ";
@@ -316,7 +316,6 @@ namespace NotiApp
             //TODO: Start logic for finding if a reboot will occur in between the next interval
             List<Server> sTemp = new List<Server>();
             List<string> strDisplayList = new List<string>();
-            DateTime dtReboot = DateTime.Now + tIn;
 
             //TODO: Complete parsing and verification logic
             foreach (Server sServer in sTemp)
@@ -326,7 +325,9 @@ namespace NotiApp
 
                 List<string> lTemp = new List<string>();
                 lTemp = grabSql(dbIn.getName(), sServer.getName(), 0);
-                
+                blnInterval = verifyTime(lTemp, intHours, 0);
+                blnAllowed = verifyTime(lTemp, intHours, 1);
+
 
 
                 //if the interval check and allowed times check passes then add it
@@ -385,10 +386,10 @@ namespace NotiApp
 
 
         //TODO: THE MOTHER OF ALL PARSERS ON EMAILS
-        public bool verifyTime(DateTime dtIn, List<string> lIn, int intIn)
+        public bool verifyTime(List<string> lIn, int intHours, int intIn)
         {
-            //Choice 1: look for reboot config
-            //Choice 2: look for configured reboot times
+            //Choice 1: look for reboot config (AllowedTime=...)
+            //Choice 2: look for configured reboot times (Start=...)
             bool blnReturn = false;
             int intChoice = intIn;
 
@@ -397,13 +398,24 @@ namespace NotiApp
             //strLines[0] = AllowedTime=...
             //strLines[1] = CheckDelay=...
             string[] strLines = lIn[0].Split('\n');
-            if(intChoice == 1)
+
+            //strLine[0] = AllowedTime=
+            //strLines[1] = ......... (settings details)
+            string[] strLine = strLines[0].Split('=');
+            if (intChoice == 1)
             {
-                string strParse = "AllowedTime=";
-
-                string[] splitA = strLines[0].Split(',');
-
+                string[] splitA = strLine[1].Split(',');
                 List<DayRange> allowedRebootTimes = new List<DayRange>();
+
+                foreach (string x in splitA)
+                {
+                    DayRange drTemp = new DayRange(x);
+                    if (drTemp.inDayRange(intHours) && drTemp.inTimeRange(intHours))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
             else if(intChoice == 2)
             {
@@ -765,7 +777,87 @@ namespace NotiApp
                     return false;
                 }
             }
+        }
 
+        //=====================================================
+        // Check to see if today's day plus hours is within range
+        // of the days of weeks outlined in parameters
+        //=====================================================
+        public bool inDayRange(int intHoursIn)
+        {
+            int i = (int)DateTime.Now.AddHours(intHoursIn).DayOfWeek;
+            if (dayX < dayY)
+            {
+                if (i >= dayX && i <= dayY)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (dayX == dayY)
+                {
+                    if (i == dayX)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (i >= dayY || i <= dayX)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        //=============================================================
+        // Check if current time plus hours is in the range of the times outlined
+        // in parameters
+        //=============================================================
+        public bool inTimeRange(int intHoursIn)
+        {
+            TimeSpan i = DateTime.Now.AddHours(intHoursIn).TimeOfDay;
+
+            if (timeY > timeX)
+            {
+                if (i >= timeX && i <= timeY)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (i >= timeX && i > timeY)
+                {
+                    return true;
+                }
+                else if (i < timeX && i <= timeY)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         //=================================================
