@@ -152,17 +152,13 @@ namespace NotiApp
             
 
 
-            //foreach(Db item in dbList)
-            //{
-
-            //}
-
-
             //go through each database and generate a report based on the stuff inside
             foreach (Db dLoop in dbList)
             {
                 strTable = strTable + headerBuilder(dLoop);
             }
+
+
             //TODO: PUSH ME TO SQL (this is the completed email HTML)
             strHTML = htmlBuilder(strTable);
 
@@ -309,26 +305,112 @@ namespace NotiApp
         }
 
         //build list of upcoming server reboots
-        public string serverBuilder(Db dbIn)
+        public string serverBuilder(Db dbIn, TimeSpan tIn)
         {
 
-            string strTemp = "";
+            string strTimespan = "PLACEHOLDER TIME ";
             string strReturn = "";
 
             string strRows = "";
+
+            //TODO: Start logic for finding if a reboot will occur in between the next interval
+            List<Server> sTemp = new List<Server>();
+            List<string> strDisplayList = new List<string>();
+            DateTime dtReboot = DateTime.Now + tIn;
+
+            //TODO: Complete parsing and verification logic
+            foreach (Server sServer in sTemp)
+            {
+                bool blnInterval = false;
+                bool blnAllowed = false;
+
+                List<string> lTemp = new List<string>();
+                lTemp = grabSql(dbIn.getName(), sServer.getName(), 0);
+                
+
+
+                //if the interval check and allowed times check passes then add it
+                if (blnInterval && blnAllowed)
+                {
+                    strDisplayList.Add(sServer.getName());
+                }
+
+            }
+
+
             strReturn= @"<table style='width:100%'>
-                                 <tr><th style='font-size: 20px;'>" + strTemp + @"</th></tr>
+                                 <tr><th style='font-size: 20px;'> Servers rebooting in the next "+ strTimespan +@"</th></tr>
                                  <tr></tr>
                                  <tr>
                                      <table style='width:100%'>
-                                        <tr>
-                                            <th>Service</th>
-                                        </tr>
                                         " + strRows + @"
                                     </table>
                             </table>
                             </br></br></br>";
             return strReturn;
+        }
+
+        public List<string> grabSql(string strDb, string strServ, int intIn)
+        {
+            //THE QUERY
+            //select conf_settings from server_programs.configfile_info where conf_tagline = '[reboot config]' and conf_server = 'RAYLAMOFFICE-PC';
+
+            //Choice 1: look for reboot config
+            //Choice 2: look for configured reboot times
+
+            //Choose which query to use
+            int intChoice = 0;
+            List<string> lReturn = new List<string>();
+
+            MySqlCommand sqlCmd = new MySqlCommand();
+            sqlCmd.Connection = connect;
+            string strQuery = "";
+            if (intChoice == 1)
+            {
+                 strQuery = "select conf_settings from " + strDb + @".configfile_info where conf_tagline = '[reboot config]' and conf_server = 'RAYLAMOFFICE-PC'";
+            }else if(intChoice == 2)
+            {
+                strQuery = "select conf_settings from " + strDb + @".configfile_info where conf_tagline = '[configured reboot times]' and conf_server = 'RAYLAMOFFICE-PC'";
+            }
+            sqlCmd.CommandText = strQuery;
+
+            var vReturn = sqlCmd.ExecuteScalar();
+
+            string strReturn = vReturn.ToString();
+
+            lReturn.Add(strReturn);
+
+            return lReturn;
+        }
+
+
+        //TODO: THE MOTHER OF ALL PARSERS ON EMAILS
+        public bool verifyTime(DateTime dtIn, List<string> lIn, int intIn)
+        {
+            //Choice 1: look for reboot config
+            //Choice 2: look for configured reboot times
+            bool blnReturn = false;
+            int intChoice = intIn;
+
+            //split subtags apart
+
+            //strLines[0] = AllowedTime=...
+            //strLines[1] = CheckDelay=...
+            string[] strLines = lIn[0].Split('\n');
+            if(intChoice == 1)
+            {
+                string strParse = "AllowedTime=";
+
+                string[] splitA = strLines[0].Split(',');
+
+                List<DayRange> allowedRebootTimes = new List<DayRange>();
+            }
+            else if(intChoice == 2)
+            {
+
+            }
+
+            return blnReturn;
         }
 
         private void makeEmail(string input, string host, string from, string to, string subject, string uname = null, string pass = null)
@@ -559,100 +641,172 @@ namespace NotiApp
             sServe = sIn;
         }
     }
+
+    /* =======================================================================================================================================================================================
+     * DateRange
+     *  - This object stores all the information we need to store all the information to determine the range between two dates and times
+     * =======================================================================================================================================================================================
+     */
+    class DayRange
+    {
+        int dayX;
+        int dayY;
+        TimeSpan timeX;
+        TimeSpan timeY;
+
+        /* =======================================================================================================================================================================================
+         * DateRange.DateRange()
+         *  - The default constructor of the DateRange object
+         * =======================================================================================================================================================================================
+         */
+        public DayRange() { }
+
+        /* =======================================================================================================================================================================================
+         * DateRange.DateRange(string)
+         *  - Takes a string, parses it and stores it into the DateRange object
+         * =======================================================================================================================================================================================
+         */
+        public DayRange(string i)
+        {
+            string[] splitA = i.Split('|');
+
+            string[] splitDay = splitA[0].Split('-');
+            if (splitDay.Length == 1)
+            {
+                dayX = twoLetterDay(splitDay[0]);
+                dayY = dayX;
+            }
+            else
+            {
+                dayX = twoLetterDay(splitDay[0]);
+                dayY = twoLetterDay(splitDay[1]);
+            }
+            string[] splitTime = splitA[1].Split('-');
+            timeX = Convert.ToDateTime(splitTime[0]).TimeOfDay;
+            timeY = Convert.ToDateTime(splitTime[1]).TimeOfDay;
+        }
+
+        //=====================================================
+        // Check to see if today's day of week is within range
+        // of the days of weeks outlined in parameters
+        //=====================================================
+        public bool inDayRange()
+        {
+            int i = (int)DateTime.Today.DayOfWeek;
+            if (dayX < dayY)
+            {
+                if (i >= dayX && i <= dayY)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (dayX == dayY)
+                {
+                    if (i == dayX)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (i >= dayY || i <= dayX)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        //=============================================================
+        // Check if current time is in the range of the times outlined
+        // in parameters
+        //=============================================================
+        public bool inTimeRange()
+        {
+            TimeSpan i = DateTime.Now.TimeOfDay;
+
+            if (timeY > timeX)
+            {
+                if (i >= timeX && i <= timeY)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (i >= timeX && i > timeY)
+                {
+                    return true;
+                }
+                else if (i < timeX && i <= timeY)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+        }
+
+        //=================================================
+        //Returns two letter weekday format as int.
+        //Follows the same format the DateTime object uses.
+        //=================================================
+        public int twoLetterDay(string i)
+        {
+            if (String.Compare("su", i) == 0)
+            {
+                return 0;
+            }
+            else if (String.Compare("mo", i) == 0)
+            {
+                return 1;
+            }
+            else if (String.Compare("tu", i) == 0)
+            {
+                return 2;
+            }
+            else if (String.Compare("we", i) == 0)
+            {
+                return 3;
+            }
+            else if (String.Compare("th", i) == 0)
+            {
+                return 4;
+            }
+            else if (String.Compare("fr", i) == 0)
+            {
+                return 5;
+            }
+            else if (String.Compare("sa", i) == 0)
+            {
+                return 6;
+            }
+            else //In case of invalid input
+            {
+                return -1;
+            }
+        }
+    }
 }
-/*
-            //HTML BUILDING
-            //after line 134
-            string strRows = "";
-            string strPost = "";
-            bool blnCheck = true;
 
-            //add logic for strPost
-            foreach(Tinfo table in tableInfo)
-            {
-                string strBackgroundColour;
-                string strFontColour;
-                if (table.getStatus()=="false")
-                {
-                    strBackgroundColour = "red";
-                    strFontColour = "white";
-                }else
-                {
-                    strBackgroundColour = "green";
-                    strFontColour = "black";
-                }
-                strRows = strRows+@"
-                            <tr>
-                            <td style='background-color:" + strBackgroundColour + "; color:"+ strFontColour +"'>"+ table.getService() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
-                            </tr>
-                            ";
-                if(table.getStatus() == "false")
-                {
-                    blnCheck = false;
-                }
-            }
-
-            string strBg;
-            string strFc;
-            if (!blnCheck)
-            {
-                strBg = "red";
-                strFc = "white";
-            }else
-            {
-                strBg = "green";
-                strFc = "black";
-            }
-            string strTable = @"<table style='width:100%'>
-                                <tr><th style='background-color:" + strBg + "; color:" + strFc + "'>" + strBg + @"</th></tr>
-                                <tr></tr>
-                                <tr>
-                                    <table style='width:100%'>
-                                        
-                                    
-                                        <tr>
-                                            <th>Service</th>
-                                            <th>Subservice</th>
-                                            <th>Status</th>
-                                            <th>Startup</th>
-                                            <th>Error</th>
-                                        </tr>
-                                        " + strRows + @"
-                                        " + strPost + @"
-                                    </table>
-                            </table>";
-
-            string strHTML = @"<html>
-                                <head>
-                                    <title>Report </title>
-                                    <meta charset='UTF-8'>
-                                </head>
-                                <style>
-                                    p{
-                                        font-family:Arial;
-                                    }
-                                    table, th, td {
-                                        font-family:Arial;
-                                        border: 1px solid black;
-                                        border-collapse: collapse;
-                                    }
-                                </style>
-                                <body>
-                                    <p>Websdepot Server Report</p>"
-                                    + strTable + 
-                                    @"</br>
-                                    
-                                    </br>
-                                    <p style='font-size:16;'>
-                                        <b>NOTIFICATION BOT</b>
-                                    </p>
-                                    </br>
-                                    <img src='http://websdepot.com/wp-content/uploads/2012/01/newsite_websdepot_logo.jpg'>
-                                    <p style='font-size:16; color:#66ccff'><b><i>Powered By Eurapp &#8482; Your Apps. Your Way.</i></b></p>
-                                </body>
-                            </html>";
-            */
