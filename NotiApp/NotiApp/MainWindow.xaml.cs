@@ -154,7 +154,8 @@ namespace NotiApp
             }
             dr.Close();
 
-                foreach (Db dLoop in dbList)
+            //go through each database and generate a report based on the stuff inside
+            foreach (Db dLoop in dbList)
             {
                 strTable = strTable + headerBuilder(dLoop);
             }
@@ -300,6 +301,29 @@ namespace NotiApp
 
                                 </body>
                             </html>";
+            return strReturn;
+        }
+
+        //build list of upcoming server reboots
+        public string serverBuilder(Db dbIn)
+        {
+
+            string strTemp = "";
+            string strReturn = "";
+
+            string strRows = "";
+            strReturn= @"<table style='width:100%'>
+                                 <tr><th style='font-size: 20px;'>" + strTemp + @"</th></tr>
+                                 <tr></tr>
+                                 <tr>
+                                     <table style='width:100%'>
+                                        <tr>
+                                            <th>Service</th>
+                                        </tr>
+                                        " + strRows + @"
+                                    </table>
+                            </table>
+                            </br></br></br>";
             return strReturn;
         }
 
