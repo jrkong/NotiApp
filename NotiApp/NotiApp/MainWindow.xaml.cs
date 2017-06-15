@@ -283,7 +283,7 @@ namespace NotiApp
             return strReturn;
         }
 
-        private void makeEmail(string input, string host, string from, string to, string subject)
+        private void makeEmail(string input, string host, string from, string to, string subject, string uname = null, string pass = null)
         {
 
 
@@ -308,13 +308,36 @@ namespace NotiApp
                 */
                 client.Send(msg);
 
+                storeEmail(input, host, from, to, subject, true, uname, pass);
             }catch(Exception ex)
             {
+                storeEmail(input, host, from, to, subject, false, uname, pass);
                 MessageBox.Show(ex.Message);
             }finally
             {
                 msg.Dispose();
             }
+        }
+
+        private void storeEmail(string input, string host, string from, string to, string subject, bool v, string uname, string pass)
+        {
+            MySqlCommand cmd = new MySqlCommand();
+            cmd.Connection = connect;
+            cmd.CommandText = "INSERT INTO " +
+                "server_programs.smtp_info(smtp_id, smtp_host, smtp_to, smtp_from, smtp_subject, smtp_body, smtp_uname,  smtp_pass, smtp_sent) " +
+                "VALUES(@smtp_id, @smtp_host, @smtp_to, @smtp_from, @smtp_subject, @smtp_body, @smtp_uname,  @smtp_pass, @smtp_sent)";
+            cmd.Prepare();
+
+            cmd.Parameters.AddWithValue("@smtp_id", null);
+            cmd.Parameters.AddWithValue("@smtp_host", host);
+            cmd.Parameters.AddWithValue("@smtp_to", to);
+            cmd.Parameters.AddWithValue("@smtp_from", from);
+            cmd.Parameters.AddWithValue("@smtp_subject", subject);
+            cmd.Parameters.AddWithValue("@smtp_body", input);
+            cmd.Parameters.AddWithValue("@smtp_uname", uname);
+            cmd.Parameters.AddWithValue("@smtp_pass", pass);
+            cmd.Parameters.AddWithValue("@smtp_sent", v ? 1 : 0);
+            cmd.ExecuteNonQuery();
         }
     }
 
