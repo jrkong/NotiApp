@@ -139,20 +139,24 @@ namespace NotiApp
             string strTable = "";
             string strHTML = "";
 
-            //TODO: add foreach for each database here
             foreach (Db dB in dbList)
             {
-                query = @"SELECT csv_server from " + dB.getName() + ".csv_service group by csv_server;";
-                cmd = new MySqlCommand(query, connect);
-                dr = cmd.ExecuteReader();
-                while (dr.Read())
+                foreach(int x in dB.getIds())
                 {
-                    Server tempServ = new Server();
-                    tempServ.setName((string)dr[0]);
-                    dB.addServer(tempServ);
-                }
+                    query = @"UPDATE `"+ dB.getName() +"`.`csv_service` SET `csv_checked`='1' WHERE `csv_id`='"+x.ToString()+"';";
+                    cmd = new MySqlCommand(query, connect);
+                    cmd.ExecuteNonQuery();
+                    
+                }                                               
             }
-            dr.Close();
+            
+
+
+            //foreach(Db item in dbList)
+            //{
+
+            //}
+
 
             //go through each database and generate a report based on the stuff inside
             foreach (Db dLoop in dbList)
