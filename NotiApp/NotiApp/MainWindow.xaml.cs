@@ -30,6 +30,7 @@ namespace NotiApp
         MySqlConnection connect;
         string serverIp = "192.168.7.24";
         string serverPort = "3306";
+        
 
         List<Tinfo> tableInfo = new List<Tinfo>();
         List<Db> dbList = new List<Db>();
@@ -110,6 +111,10 @@ namespace NotiApp
                     {
                         Tinfo tTemp = new Tinfo();
 
+                        tTemp.setId((int)dr[0]);
+                        dB.addId((int)dr[0]);
+
+
                         tTemp.setService((string)dr[4]);
                         tTemp.setSubservice((string)dr[5]);
                         tTemp.setServer((string)dr[2]);
@@ -133,6 +138,8 @@ namespace NotiApp
 
             string strTable = "";
             string strHTML = "";
+
+            //TODO: add foreach for each database here
 
             foreach (Db dLoop in dbList)
             {
@@ -320,12 +327,24 @@ namespace NotiApp
 
     public class Tinfo
     {
+        int intId;
         string strStatus;
         string strService;
         string strSubservice;
         string strStartup;
         string strError;
         string strServer;
+
+        //ID getter setter set
+        public void setId(int intIn)
+        {
+            intId = intIn;
+        }
+
+        public int getId()
+        {
+            return intId;
+        }
 
         //status getter setter set
         public void setStatus(string strIn)
@@ -437,6 +456,18 @@ namespace NotiApp
     {
         string strName;
         List<Server> sServe = new List<Server>();
+        List<int> lIds = new List<int>();
+
+        //ID getter setter set
+        public void addId(int intIn)
+        {
+            lIds.Add(intIn);
+        }
+
+        public List<int> getIds()
+        {
+            return lIds;
+        }
 
 
         public void setName(string strIn)
