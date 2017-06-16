@@ -164,13 +164,14 @@ namespace NotiApp
             strHTML = htmlBuilder(strTable);
 
             
-
+            // TODO: Show server details
             makeEmail(strHTML,"email.websdepot.com","alert@websdepot.com","rlam@websdepot.com","test");
-            wb1.NavigateToString(strHTML);
+            //wb1.NavigateToString(strHTML);
 
+            string strTable2 = "";
             foreach (Db dLoop in dbList)
             {
-                strTable = strTable + serverBuilder(dLoop, 24);
+                strTable2 = strTable2 + serverBuilder(dLoop, 24);
             }
             strDetailsHTML = htmlBuilder(strTable);
 
