@@ -324,11 +324,14 @@ namespace NotiApp
                 bool blnAllowed = false;
 
                 List<string> lTemp = new List<string>();
-                lTemp = grabSql(dbIn.getName(), sServer.getName(), 0);
-                blnInterval = verifyTime(lTemp, intHours, 0);
+                //Grab allowed times
+                lTemp = grabSql(dbIn.getName(), sServer.getName(), 1);
                 blnAllowed = verifyTime(lTemp, intHours, 1);
 
-
+                //Grab reboot intervals
+                lTemp = grabSql(dbIn.getName(), sServer.getName(), 2);
+                blnInterval = verifyTime(lTemp, intHours, 2);
+                
 
                 //if the interval check and allowed times check passes then add it
                 if (blnInterval && blnAllowed)
@@ -337,7 +340,11 @@ namespace NotiApp
                 }
 
             }
-
+            
+            foreach (string strLine in strDisplayList)
+            {
+                //TODO: Add row template for server names
+            }
 
             strReturn= @"<table style='width:100%'>
                                  <tr><th style='font-size: 20px;'> Servers rebooting in the next "+ strTimespan +@"</th></tr>
@@ -395,19 +402,37 @@ namespace NotiApp
 
             //split subtags apart
 
+            //Choice 1
             //strLines[0] = AllowedTime=...
             //strLines[1] = CheckDelay=...
+
+            //Choice 2
+            //strLine[0] = Start=
+            //strLines[1] = Interval= (settings details)
             string[] strLines = lIn[0].Split('\n');
 
+            //Choice 1
             //strLine[0] = AllowedTime=
             //strLines[1] = ......... (settings details)
+            //strLine2[0] = CheckDelay=
+            //strLines2[1] = ......... (settings details)
+
+            //Choice 2
+            //strLine[0] = Start=
+            //strLines[1] = ......... (settings details)
+            //strLine2[0] = Interval=
+            //strLines2[1] = ......... (settings details)
             string[] strLine = strLines[0].Split('=');
+
+            string[] strLine2 = strLines[1].Split('=');
+
+            //check for allowed times
             if (intChoice == 1)
             {
-                string[] splitA = strLine[1].Split(',');
+                string[] strSplit = strLine[1].Split(',');
                 List<DayRange> allowedRebootTimes = new List<DayRange>();
 
-                foreach (string x in splitA)
+                foreach (string x in strSplit)
                 {
                     DayRange drTemp = new DayRange(x);
                     if (drTemp.inDayRange(intHours) && drTemp.inTimeRange(intHours))
@@ -417,9 +442,103 @@ namespace NotiApp
                 }
                 return false;
             }
+            //check for interval
             else if(intChoice == 2)
             {
+                //handle the date
+                // -happening- equiv from reboot services
+                DateTime dtDate = Convert.ToDateTime(strLine[1]);
 
+                
+                string[] strSplit = strLine2[1].Split(',');
+
+                TimeSpan tInterval;
+
+                string strTime, strInterval;
+                strTime = strSplit[0];
+                strInterval = strSplit[1];
+
+                long intMs = 0;
+                //string[] strInterval;
+                int intT;
+
+                //strInterval = strInterval.Split(',');
+
+                intT = int.Parse(strTime);
+
+                //if tree for intervals
+
+                //convert from seconds
+                intMs = intT * 1000;
+                strInterval = strInterval.ToLower();
+                //check if seconds is needed conversion
+
+                //do loop to allow for breaking 
+                do
+                {
+                    if (strInterval.Equals("s") || strInterval.Equals("second"))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        //convert to minutes
+                        intMs = intMs * 60;
+                    }
+
+                    if (strInterval.Equals("m") || strInterval.Equals("min") || strInterval.Equals("minute"))
+                    {
+                        //if yes return
+                        break;
+                    }
+                    else
+                    {
+                        //if yes return
+                        intMs = intMs * 60;
+                    }
+
+                    if (strInterval.Equals("h") || strInterval.Equals("hour"))
+                    {
+                        //if yes return
+                        break;
+                    }
+                    else
+                    {
+                        intMs = intMs * 24;
+                    }
+
+                    if (strInterval.Equals("d") || strInterval.Equals("day"))
+                    {
+                        //if yes return
+                        break;
+                    }
+                    else
+                    {
+                        intMs = intMs * 7;
+                    }
+                    if (strInterval.Equals("w") || strInterval.Equals("week"))
+                    {
+                        //if yes return
+                        break;
+                    }
+                    else
+                    {
+                        intMs = intMs * 30;
+                    }
+                    if (strInterval.Equals("month") || strInterval.Equals("mon"))
+                    {
+                        //month is the largest
+                        break;
+                    }
+                    else
+                    {
+                        //conversion tag invalid
+                        System.Console.WriteLine("Conversion unit does not exist");
+                        break;
+                    }
+                } while (true);
+
+                tInterval = TimeSpan.FromMilliseconds(intMs);
             }
 
             return blnReturn;
