@@ -138,6 +138,7 @@ namespace NotiApp
 
             string strTable = "";
             string strHTML = "";
+            string strDetailsHTML = "";
 
             foreach (Db dB in dbList)
             {
@@ -166,6 +167,14 @@ namespace NotiApp
 
             makeEmail(strHTML,"email.websdepot.com","alert@websdepot.com","rlam@websdepot.com","test");
             wb1.NavigateToString(strHTML);
+
+            foreach (Db dLoop in dbList)
+            {
+                strTable = strTable + serverBuilder(dLoop, 24);
+            }
+            strDetailsHTML = htmlBuilder(strTable);
+
+            wb1.NavigateToString(strDetailsHTML);
         }
 
         //build html string for the body
@@ -251,11 +260,11 @@ namespace NotiApp
                 }
                 strRows = strRows + @"
                             <tr>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getService() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</th>
-                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</th>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getService() + @"</td>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getSubservice() + @"</td>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStatus() + @"</td>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getStartup() + @"</td>
+                            <td style='background-color:" + strBackgroundColour + "; color:" + strFontColour + "'>" + table.getError() + @"</td>
                             </tr>
                             ";
                 if (table.getStatus() == "false")
@@ -338,12 +347,12 @@ namespace NotiApp
                 {
                     strDisplayList.Add(sServer.getName());
                 }
-
             }
             
             foreach (string strLine in strDisplayList)
             {
                 //TODO: Add row template for server names
+                strRows = strRows + @"<td style='background-color:'white';>" + strLine + @"</td>";
             }
 
             strReturn= @"<table style='width:100%'>
@@ -368,6 +377,7 @@ namespace NotiApp
 
             //Choose which query to use
             int intChoice = 0;
+            string strSysName = System.Environment.MachineName;
             List<string> lReturn = new List<string>();
 
             MySqlCommand sqlCmd = new MySqlCommand();
@@ -375,10 +385,10 @@ namespace NotiApp
             string strQuery = "";
             if (intChoice == 1)
             {
-                 strQuery = "select conf_settings from " + strDb + @".configfile_info where conf_tagline = '[reboot config]' and conf_server = 'RAYLAMOFFICE-PC'";
+                 strQuery = "select conf_settings from " + strDb + @".configfile_info where conf_tagline = '[reboot config]' and conf_server = '"+ strSysName + @"'";
             }else if(intChoice == 2)
             {
-                strQuery = "select conf_settings from " + strDb + @".configfile_info where conf_tagline = '[configured reboot times]' and conf_server = 'RAYLAMOFFICE-PC'";
+                strQuery = "select conf_settings from " + strDb + @".configfile_info where conf_tagline = '[configured reboot times]' and conf_server = '"+ strSysName + @"'";
             }
             sqlCmd.CommandText = strQuery;
 
