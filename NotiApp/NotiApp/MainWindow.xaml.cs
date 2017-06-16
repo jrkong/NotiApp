@@ -595,19 +595,19 @@ namespace NotiApp
             MySqlCommand cmd = new MySqlCommand();
             cmd.Connection = connect;
             cmd.CommandText = "INSERT INTO " +
-                "server_programs.smtp_info(smtp_id, smtp_host, smtp_to, smtp_from, smtp_subject, smtp_body, smtp_uname,  smtp_pass, smtp_sent) " +
-                "VALUES(@smtp_id, @smtp_host, @smtp_to, @smtp_from, @smtp_subject, @smtp_body, @smtp_uname,  @smtp_pass, @smtp_sent)";
+                "server_programs.email_info(email_id, email_host, email_to, email_from, email_subject, email_body, email_uname,  email_pass, email_sent) " +
+                "VALUES(@email_id, @email_host, @email_to, @email_from, @email_subject, @email_body, @email_uname,  @email_pass, @email_sent)";
             cmd.Prepare();
 
-            cmd.Parameters.AddWithValue("@smtp_id", null);
-            cmd.Parameters.AddWithValue("@smtp_host", host);
-            cmd.Parameters.AddWithValue("@smtp_to", to);
-            cmd.Parameters.AddWithValue("@smtp_from", from);
-            cmd.Parameters.AddWithValue("@smtp_subject", subject);
-            cmd.Parameters.AddWithValue("@smtp_body", input);
-            cmd.Parameters.AddWithValue("@smtp_uname", uname);
-            cmd.Parameters.AddWithValue("@smtp_pass", pass);
-            cmd.Parameters.AddWithValue("@smtp_sent", v ? 1 : 0);
+            cmd.Parameters.AddWithValue("@email_id", null);
+            cmd.Parameters.AddWithValue("@email_host", host);
+            cmd.Parameters.AddWithValue("@email_to", to);
+            cmd.Parameters.AddWithValue("@email_from", from);
+            cmd.Parameters.AddWithValue("@email_subject", subject);
+            cmd.Parameters.AddWithValue("@email_body", input);
+            cmd.Parameters.AddWithValue("@email_uname", uname);
+            cmd.Parameters.AddWithValue("@email_pass", pass);
+            cmd.Parameters.AddWithValue("@email_sent", v ? 1 : 0);
             cmd.ExecuteNonQuery();
         }
     }
